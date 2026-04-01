@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JD Scorecard (WHO)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Modern Professional Palette */
+            --primary-blue: #2563eb; 
+            --primary-dark: #1e40af;
+            --secondary-bg: #f8fafc; 
+            --white: #ffffff;
+            --text-main: #1e293b; 
+            --text-secondary: #64748b; 
+            --border-color: #cbd5e1; 
+            --input-hover: #f1f5f9;
+            --danger-red: #ef4444;
+            --accent-blue: #eff6ff; 
+            --success-green: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            background-color: #e2e8f0;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Page Container */
+        .page {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 900px;
+            padding: 50px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-sizing: border-box;
+            border-radius: 16px;
+            margin-bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* --- Header & Footer Areas --- */
+        .logo-header, .page-footer {
+            width: 100%;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .logo-header { margin-bottom: 30px; }
+        .page-footer { margin-top: 50px; opacity: 0.9; }
+        .logo-header img, .page-footer img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Typography */
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            position: relative;
+            padding-bottom: 18px;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-dark));
+            border-radius: 3px;
+        }
+
+        h2 {
+            font-size: 15px;
+            margin: 40px 0 20px 0;
+            font-weight: 700;
+            color: var(--white);
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .instruction {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-style: italic;
+            padding-left: 5px;
+        }
+
+        .section-content {
+            padding: 25px;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            transition: border-color 0.2s;
+        }
+        
+        .section-content:hover { border-color: #94a3b8; }
+
+        /* Inputs & Fields - Made Adjustable */
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .header-field {
+            font-size: 14px;
+            display: flex;
+            align-items: baseline;
+            width: 100%;
+            flex-wrap: nowrap; /* Keep label and line together */
+        }
+
+        .header-field > span:first-child {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-right: 12px;
+            white-space: nowrap;
+            min-width: 80px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .underline {
+            flex-grow: 1;
+            border-bottom: 2px solid var(--border-color);
+            margin-left: 5px;
+            display: flex;
+            min-width: 100px;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .underline:hover { border-bottom-color: #94a3b8; }
+        .underline:focus-within { border-bottom-color: var(--primary-blue); }
+
+        /* Auto-expanding contenteditable lines */
+        .editable-input {
+            width: 100%;
+            min-height: 22px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+            outline: none;
+            word-break: break-word; /* Allows long words to wrap */
+            white-space: pre-wrap; /* Keeps line breaks if user presses enter */
+        }
+
+        /* Placeholder styling for contenteditable */
+        .editable-input:empty::before {
+            content: attr(data-placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+            display: block; /* Prevents cursor jumping issues */
+        }
+
+        .editable-input:focus {
+            background-color: rgba(37, 99, 235, 0.03);
+            border-radius: 4px;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Textareas - Auto-expanding boxes */
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            background-color: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            resize: none; /* Disabled manual resize, JS handles it */
+            min-height: 90px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-main);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+            line-height: 1.6;
+            overflow: hidden; /* Hide scrollbars for clean print look */
+        }
+
+        textarea:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        /* Dynamic Items */
+        .dynamic-item {
+            position: relative;
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: fadeIn 0.3s ease-in-out;
+            page-break-inside: avoid; /* Crucial for PDF */
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dynamic-item:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            background-color: var(--white);
+            color: var(--danger-red);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+            font-size: 18px;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .delete-btn:hover {
+            background-color: var(--danger-red);
+            color: var(--white);
+            border-color: var(--danger-red);
+            transform: scale(1.1);
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--white);
+            border: 1px dashed var(--primary-blue);
+            color: var(--primary-blue);
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-btn:hover {
+            background-color: var(--accent-blue);
+            border-style: solid;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Layout Utils */
+        .columns-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .col-header {
+            font-size: 14px;
+            color: var(--text-main);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .col-header.blue { border-bottom: 2px solid var(--primary-blue); }
+        .col-header.red { border-bottom: 2px solid var(--danger-red); }
+
+        /* Print Button */
+        .no-print-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            padding: 14px 28px;
+            background: var(--text-main);
+            color: var(--white);
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .no-print-btn:hover {
+            transform: translateY(-3px);
+            background-color: black;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .page { padding: 25px; margin-bottom: 90px; border-radius: 0; box-shadow: none; }
+            .header-grid { grid-template-columns: 1fr; gap: 15px; }
+            h1 { font-size: 22px; margin-bottom: 25px; }
+            h2 { margin-top: 30px; }
+            .header-field { flex-direction: column; }
+            .underline { width: 100%; margin-left: 0; margin-top: 5px; }
+        }
+
+        @media (min-width: 769px) {
+            .columns-2 { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* --- PRINT OPTIMIZATIONS (The Core Request) --- */
+        @media print {
+            @page {
+                margin: 0;
+                size: auto;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
+
+            .page {
+                box-shadow: none;
+                width: 100%;
+                max-width: 100%;
+                padding: 0 40px; 
+                margin: 0;
+                border: none;
+                border-radius: 0;
+            }
+
+            .no-print { display: none !important; }
+
+            .logo-header {
+                margin: 0 -40px 20px -40px;
+                width: calc(100% + 80px);
+                border-radius: 0;
+            }
+            
+            .page-footer {
+                margin: 40px -40px 0 -40px;
+                width: calc(100% + 80px);
+                border-radius: 0;
+            }
+
+            h1 { font-size: 24px; margin: 10px 0 5px 0; padding-bottom: 10px; }
+            
+            h2 { 
+                font-size: 14px; 
+                margin: 20px 0 15px 0; 
+                padding: 8px 15px;
+                background: #1e40af !important;
+                color: #fff !important;
+                box-shadow: none;
+                border-radius: 4px;
+                page-break-after: avoid; /* Keep title with content */
+            }
+
+            .section-content, .dynamic-item {
+                padding: 0;
+                margin-bottom: 20px;
+                border: none;
+                background: none;
+                page-break-inside: avoid; /* Prevent splitting boxes across pages */
+            }
+            
+            .header-grid, .columns-2 { 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 20px; 
+            }
+
+            .dynamic-item {
+                border: 1px solid #ccc;
+                padding: 15px;
+                border-radius: 6px;
+                transform: none !important;
+            }
+
+            /* Ensure all input types expand and show full content in PDF */
+            .editable-input, input[type="date"], textarea {
+                background: transparent !important;
+                box-shadow: none !important;
+                border: none;
+                color: #000;
+                font-weight: 600;
+                word-break: break-word;
+                white-space: pre-wrap; /* Crucial for wrapping text in print */
+            }
+            
+            .editable-input {
+                min-height: auto;
+            }
+
+            textarea {
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                height: auto !important; /* Force textarea to show all content */
+                overflow: visible !important;
+            }
+            
+            /* Hide placeholders in print if empty */
+            .editable-input:empty::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="no-print-btn no-print" onclick="window.print()">
+        <span>Print / PDF</span>
+    </button>
+
+    <div class="page">
+        <!-- Logo Header Space -->
+        <div class="logo-header">
+            <!-- REPLACE 'Header.png' with your actual logo filename -->
+            <img src="Header.png" alt="Company Logo" onerror="this.style.display='none'">
+        </div>
+
+        <!-- Title -->
+        <h1>JD Scorecard (WHO)</h1>
+
+        <!-- Header Block -->
+        <div class="header-grid">
+            <div class="header-field">
+                <span>Role Title:</span> 
+                <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="Enter role title..."></div></div>
+            </div>
+            <div class="header-field">
+                <span>Dept:</span> 
+                <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="Enter department..."></div></div>
+            </div>
+            <div class="header-field">
+                <span>Reports To:</span> 
+                <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="Enter manager role..."></div></div>
+            </div>
+            <div class="header-field">
+                <span>Date:</span> 
+                <div class="underline"><input type="date"></div>
+            </div>
+        </div>
+
+        <!-- Section 1: Mission -->
+        <h2>1. Mission (The Why)</h2>
+        <div class="section-content">
+            <div class="header-field" style="margin-bottom: 12px;">
+                <span style="color: var(--primary-blue);">Executive Summary:</span>
+            </div>
+            <textarea rows="4" placeholder="Briefly describe the core purpose of this role..."></textarea>
+        </div>
+
+        <!-- Section 2: Key Outcomes -->
+        <h2>2. Key Outcomes (The What)</h2>
+        <div class="instruction">List 3-5 specific, measurable SMART goals.</div>
+        
+        <div id="outcomes-container">
+            <!-- Outcome 1 -->
+            <div class="dynamic-item">
+                <button class="delete-btn no-print" onclick="deleteItem(this)">×</button>
+                <div class="header-field" style="margin-bottom: 12px;">
+                    <span>Outcome 1:</span> 
+                    <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="Description of the goal"></div></div>
+                </div>
+                <div class="header-field">
+                    <span style="color: var(--text-secondary); font-size: 13px;">Metric:</span> 
+                    <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="How will we measure success?"></div></div>
+                </div>
+            </div>
+            <!-- Outcome 2 -->
+            <div class="dynamic-item">
+                <button class="delete-btn no-print" onclick="deleteItem(this)">×</button>
+                <div class="header-field" style="margin-bottom: 12px;">
+                    <span>Outcome 2:</span> 
+                    <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="Description of the goal"></div></div>
+                </div>
+                <div class="header-field">
+                    <span style="color: var(--text-secondary); font-size: 13px;">Metric:</span> 
+                    <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="How will we measure success?"></div></div>
+                </div>
+            </div>
+        </div>
+        <button class="add-btn no-print" onclick="addItem('outcomes-container')">+ Add Outcome</button>
+
+
+        <!-- Section 3: Critical Competencies -->
+        <h2>3. Critical Competencies (The How)</h2>
+        <div class="instruction">The behaviors and technical skills required to achieve the outcomes above.</div>
+
+        <div class="columns-2">
+            <!-- Behavioral Competencies -->
+            <div>
+                <div class="col-header blue">Behavioral Competencies</div>
+                <div id="behavioral-container">
+                    <div class="dynamic-item">
+                        <button class="delete-btn no-print" onclick="deleteItem(this)">×</button>
+                        <textarea rows="2" placeholder="e.g., Strategic Thinking..."></textarea>
+                    </div>
+                    <div class="dynamic-item">
+                        <button class="delete-btn no-print" onclick="deleteItem(this)">×</button>
+                        <textarea rows="2" placeholder="e.g., Adaptability..."></textarea>
+                    </div>
+                </div>
+                <button class="add-btn no-print" onclick="addItem('behavioral-container')">+ Add Behavior</button>
+            </div>
+
+            <!-- Technical Skills -->
+            <div>
+                <div class="col-header red">Technical/Hard Skills</div>
+                <div id="technical-container">
+                    <div class="dynamic-item">
+                        <button class="delete-btn no-print" onclick="deleteItem(this)">×</button>
+                        <textarea rows="2" placeholder="e.g., Python, Financial Modeling..."></textarea>
+                    </div>
+                    <div class="dynamic-item">
+                        <button class="delete-btn no-print" onclick="deleteItem(this)">×</button>
+                        <textarea rows="2" placeholder="e.g., Project Management..."></textarea>
+                    </div>
+                </div>
+                <button class="add-btn no-print" onclick="addItem('technical-container')">+ Add Skill</button>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <!-- REPLACE 'footer.png' with your actual footer filename -->
+            <img src="footer.png" alt="Footer Image" onerror="this.style.display='none'">
+        </div>
+
+    </div>
+
+    <!-- Scripts for Dynamic Functionality -->
+    <script>
+        // CORE FIX: Auto-resizing textareas
+        const autoResize = (el) => {
+            el.style.height = 'auto'; // Reset height
+            el.style.height = el.scrollHeight + 'px'; // Set to actual content height
+        };
+
+        // Attach listeners to initial textareas on page load
+        document.querySelectorAll('textarea').forEach(textarea => {
+            autoResize(textarea); // Resize on load
+            textarea.addEventListener('input', () => autoResize(textarea)); // Resize on typing
+        });
+
+        function addItem(containerId) {
+            const container = document.getElementById(containerId);
+            const count = container.children.length + 1;
+            const div = document.createElement('div');
+            div.className = 'dynamic-item';
+
+            if (containerId === 'outcomes-container') {
+                // Now using contenteditable instead of inputs for wrapping
+                div.innerHTML = `
+                    <button class="delete-btn no-print" onclick="deleteItem(this)">×</button>
+                    <div class="header-field" style="margin-bottom: 12px;">
+                        <span>Outcome ${count}:</span> 
+                        <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="Description of the goal"></div></div>
+                    </div>
+                    <div class="header-field">
+                        <span style="color: var(--text-secondary); font-size: 13px;">Metric:</span> 
+                        <div class="underline"><div contenteditable="true" class="editable-input" data-placeholder="How will we measure success?"></div></div>
+                    </div>
+                `;
+            } 
+            else if (containerId === 'behavioral-container' || containerId === 'technical-container') {
+                div.innerHTML = `
+                    <button class="delete-btn no-print" onclick="deleteItem(this)">×</button>
+                    <textarea rows="2" placeholder="Enter competency..."></textarea>
+                `;
+            }
+
+            container.appendChild(div);
+            
+            // CORE FIX: Attach the auto-resize listener to NEWLY created textareas
+            div.querySelectorAll('textarea').forEach(textarea => {
+                autoResize(textarea); 
+                textarea.addEventListener('input', () => autoResize(textarea));
+            });
+
+            if (containerId === 'outcomes-container') {
+                renumberOutcomes();
+            }
+        }
+
+        function deleteItem(btn) {
+            const item = btn.closest('.dynamic-item');
+            const container = item.parentElement;
+            
+            item.remove();
+            
+            if (container.id === 'outcomes-container') {
+                renumberOutcomes();
+            }
+        }
+
+        function renumberOutcomes() {
+            const container = document.getElementById('outcomes-container');
+            const items = container.querySelectorAll('.dynamic-item');
+
+            items.forEach((item, index) => {
+                const count = index + 1;
+                const span = item.querySelector('.header-field span');
+                if(span) span.textContent = `Outcome ${count}:`;
+            });
+        }
+        
+        // Date Input UX
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        const today = new Date().toISOString().split('T')[0];
+        dateInputs.forEach(input => {
+            input.setAttribute('min', today);
+            input.addEventListener('click', function(e) {
+                e.preventDefault();
+                try { if (typeof this.showPicker === 'function') this.showPicker(); } catch (err) {}
+            });
+        });
+
+        // --- Print Optimization & Data Preparation ---
+        window.addEventListener('beforeprint', () => {
+            // Expand all textareas forcefully before rendering PDF
+            document.querySelectorAll('textarea').forEach(textarea => {
+                autoResize(textarea);
+                textarea.innerHTML = textarea.value; // Bake value for legacy print engines
+            });
+        });
+    </script>
+
+</body>
+</html>
